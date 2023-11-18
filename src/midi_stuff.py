@@ -3,7 +3,7 @@ from midi2audio import FluidSynth
 from collections import defaultdict
 
 # https://schristiancollins.com/generaluser.php
-SOUND_FONT_FILE = "GeneralUser GS v1.471.sf2"
+SOUND_FONT_FILE = "assets/GeneralUser GS 1.471/GeneralUser GS v1.471.sf2"
 
 
 def convert_midi_to_wav(midi_file_path, wav_file_path, soundfont):
