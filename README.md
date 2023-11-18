@@ -1,8 +1,8 @@
-# Music Graphs -- Turn MIDI Files into Cool Animated Videos
+# Music Graphs
 
 👋 Hey there! Welcome to Music Graphs 🎵📊
 
-This is where the magic happens for the videos I post on [my TikTok](https://tiktok.com/@music_graphs).
+This is where the magic happens for the videos I post on [TikTok](https://tiktok.com/@music_graphs).
 
 Check it out if you haven't already!
 
