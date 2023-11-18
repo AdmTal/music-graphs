@@ -14,6 +14,12 @@ Check it out if you haven't already!
 
 🤩 Follow me! Like my videos! Make me famous!
 
+## Example Videos
+
+https://github.com/AdmTal/music-graphs/assets/3382568/7015cbc8-77ca-498a-968b-6dce2f908ad0
+
+https://github.com/AdmTal/music-graphs/assets/3382568/a9af3ec7-0f6f-46b7-a603-4834e2707553
+
 ---
 
 ## Install
