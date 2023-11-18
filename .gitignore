@@ -6,3 +6,4 @@ venv/*
 **/.pytest_cache/*
 *.mid
 *.mp4
+local_assets/*
