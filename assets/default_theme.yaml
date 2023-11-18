@@ -1,0 +1,93 @@
+# Dimensions of the video that will be created
+width: 1088
+height: 1920
+
+# How many "frames per second" will be created in the animations
+frame_rate: 60
+
+# Graphviz uses "Points" as a unit, this DPI is used in converting to Pixels
+dpi: 110
+
+# Some helpful flags to set while developing videos
+debug:
+  # Set to "1" to show the base image and then quit
+  show_base_image: 0
+  # Choose how many frames in order to produce a partial video
+  max_frames: 0
+
+# Image that shows behind the graph in the video
+background_image: ""
+# Size of the letters in the nodes
+font_size: 60
+# Font to use - change to any Font file on your system
+font: "assets/ClassyCoiffeurRegular-2Vl8.otf"
+
+# Tweak the text location, needed when you change Font, DPI, or Size.
+text_location_offsets:
+  len_1:
+    x: -20
+    y: -35
+  len_2:
+    x: -35
+    y: -35
+
+# These get passed to Graphviz
+# If you don't know what Graphviz is, drop everything and go check that out, it's amazing
+# https://graphviz.org/doc/info/attrs.html
+graphviz_engine: "circo"
+graphviz_node_attrs:
+  width: "1"
+  height: "1"
+graphviz_graph_attrs:
+
+# True if you want to see the Lines (splines)
+show_graph_lines: false
+graph_line_width: 3
+
+# True if you want to squash a multi-track midi into a single track
+squash_tracks: false
+
+# "Nodes" are the notes on the graph
+node:
+  fill_color: "#000000"
+  outline_color: "#000000"
+  shadow_color: "#FFFFFF"
+  shadow_size: 50
+  text:
+    color: "#FFFFFF"
+    stroke_color: ""
+    stroke_width: ""
+
+# The default here applies to all tracks, you can override them in a new theme file
+tracks:
+  default:
+
+    # Be default, all MIDI tracks show up in the video.
+    # You can set this on a track you want to hide.
+    # I typically do this for percussion tracks, or tracks that are super similar to others.
+    skip: false
+
+    # "note" is the pulse that shows on top of a Node when a note plays
+    note:
+      color: "#FFFFFF"
+      stroke_color: "#FFFFFF"
+      stroke_width: 1
+      # this would make the node 0% bigger than it should be
+      increase_size: 0
+
+    # "ball" is that thing that flies between the notes before they play
+    ball:
+      radius: 50
+      color: "#000000"
+      stroke_color: "#000000"
+      stroke_width: 0
+      # This is fancy.  The ball is slightly blurred, and sharpens just in time to hit the note
+      # Play around with this one, I'm not sure how to explain it.
+      g_blur_max: 0
+
+    # "chord line" is that line that connects the nodes when multiple notes are played on a track
+    chord_line:
+      color: "#000000"
+      border_color: "#000000"
+      width: 15
+

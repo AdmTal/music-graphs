@@ -1,0 +1,46 @@
+dpi: 105
+
+background_image: "examples/wii_background.jpeg"
+
+debug:
+  max_frames: 1200  # Generate 20 seconds for the example
+  show_base_image: 0
+
+font: "fonts/contb.ttf"
+font_size: 60
+text_location_offsets:
+  len_1:
+    x: -20
+    y: -20
+  len_2:
+    x: -35
+    y: -20
+
+node:
+  outline_color: "#8b8b8b"
+  fill_color: ""
+  shadow_size: 0
+  shadow_color: ""
+  text:
+    color: "#8b8b8b"
+    stroke_color: null
+    stroke_width: null
+
+tracks:
+  track_2:
+    note:
+      color: "#009ac7"
+      increase_size: 50
+      stroke_width: 1
+      stroke_color: null
+    ball:
+      radius: 50
+      color: "#8b8b8b"
+      stroke_color: null
+      ball_stroke_width: null
+    chord_line:
+      color: '#000000'
+      border_color: '#CCCCCC'
+
+
+
