@@ -381,7 +381,9 @@ def animate_bezier_point(
         blur_radius = min(
             animation_length_in_frames - frame_number, theme.ball_g_blur_max(track)
         )
-        overlay_image = overlay_image.filter(ImageFilter.GaussianBlur(radius=blur_radius))
+        overlay_image = overlay_image.filter(
+            ImageFilter.GaussianBlur(radius=blur_radius)
+        )
 
     # Composite the transparent overlay onto the base image
     return Image.alpha_composite(

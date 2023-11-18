@@ -67,6 +67,9 @@ tracks:
     # I typically do this for percussion tracks, or tracks that are super similar to others.
     skip: false
 
+    # This controls if "balls" can flow from a note to itself
+    allow_self_notes: false
+
     # "note" is the pulse that shows on top of a Node when a note plays
     note:
       color: "#FFFFFF"

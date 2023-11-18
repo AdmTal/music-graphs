@@ -27,13 +27,13 @@ def add_frame_to_video(writer, frame):
 
 
 def finalize_video_with_music(
-        writer,
-        video_file_path,
-        output_file_name,
-        midi_file_path,
-        frame_rate,
-        soundfont_file,
-        frames_written,
+    writer,
+    video_file_path,
+    output_file_name,
+    midi_file_path,
+    frame_rate,
+    soundfont_file,
+    frames_written,
 ):
     writer.close()  # Ensure the writer is closed
 
@@ -48,7 +48,9 @@ def finalize_video_with_music(
     )
     audio_clip = AudioSegment.from_file(temp_music_file)
 
-    audio_duration = int((frames_written / frame_rate) * 1000)  # Duration in milliseconds
+    audio_duration = int(
+        (frames_written / frame_rate) * 1000
+    )  # Duration in milliseconds
     audio_clip = audio_clip[:audio_duration]  # Truncate the audio
 
     temp_audio = f"{get_cache_dir()}/music.wav"

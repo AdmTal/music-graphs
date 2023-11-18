@@ -84,6 +84,12 @@ class Theme:
             default_path=f"tracks.default.skip",
         )
 
+    def allow_self_notes(self, track):
+        return self._get_value(
+            f"tracks.{track}.allow_self_notes",
+            default_path=f"tracks.default.skip",
+        )
+
     @property
     def graphviz_edge_attrs(self):
         path = "graphviz_edge_attrs"

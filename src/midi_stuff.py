@@ -16,9 +16,9 @@ def get_note(number):
 
 
 def get_note_start_times_in_frames(
-        midi_file_path,
-        fps,
-        squash_tracks=False,
+    midi_file_path,
+    fps,
+    squash_tracks=False,
 ):
     # Load the MIDI file
     midi_data = pretty_midi.PrettyMIDI(midi_file_path)

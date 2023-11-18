@@ -1,4 +1,3 @@
-import os
 import click
 import psutil
 from graphviz import Graph
@@ -99,9 +98,9 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
 
             # Animate the Node pulses
             for (
-                    current_note,
-                    curr_note_velocity,
-                    curr_note_frame_len,
+                current_note,
+                curr_note_velocity,
+                curr_note_frame_len,
             ) in curr_note_tuples:
                 frames = []
                 for i in range(curr_note_frame_len):
@@ -184,10 +183,10 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
                     for a in prev_notes:
                         for b in curr_notes:
                             if (
-                                    b in drawn_to
-                                    # or a == b
-                                    or source_usage[a] >= max_usage
-                                    or b not in edges[a]
+                                b in drawn_to
+                                or (a == b and not theme.allow_self_notes(track))
+                                or source_usage[a] >= max_usage
+                                or b not in edges[a]
                             ):
                                 continue
 
