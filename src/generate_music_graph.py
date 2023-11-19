@@ -117,7 +117,7 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
 
                     frames.append(frame)
                 FRAMES.add_frames_to_layer(
-                    f"l1-{track}-{current_note}", curr_frame, frames
+                    f"l2-{track}-{current_note}", curr_frame, frames
                 )
 
             # Animate the Chord Lines
@@ -165,7 +165,7 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
                             ]
                         )
                     FRAMES.add_frames_to_layer(
-                        f"l2-{track}-{a}-{b}-line", curr_frame, frames
+                        f"l1-{track}-{a}-{b}-line", curr_frame, frames
                     )
 
             curr_notes = [curr_note_tuple[0] for curr_note_tuple in curr_note_tuples]
