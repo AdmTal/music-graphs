@@ -503,7 +503,7 @@ def parse_graph(
 
     for line in lines[1:-1]:
         line_id, attributes = line.split("[")
-        line_id = line_id.strip()
+        line_id = line_id.strip().replace('"', "")
         attributes = attributes.replace("];", "")
 
         attrs_dict = split_attributes(attributes)
@@ -560,12 +560,12 @@ def parse_graph(
                     theme.node_shadow_size,
                     theme.graph_line_width,
                 )
-                nodes[int(line_id)] = draw
+                nodes[line_id] = draw
 
             if draw.b_points:
                 a, b = line_id.split(" -- ")
-                edges[int(a)][int(b)] = draw
-                edges[int(b)][int(a)] = draw
+                edges[a][b] = draw
+                edges[b][a] = draw
                 if theme.show_lines:
                     draw_bezier_curve(
                         offsets,
@@ -575,7 +575,7 @@ def parse_graph(
                         theme.graph_line_width,
                     )
 
-        if "_ldraw_" in attrs_dict:
+        if "_ldraw_" in attrs_dict and not theme.hide_letters:
             ldraw = parse_ldraw(attrs_dict["_ldraw_"], theme.dpi)
 
             if len(ldraw.text) == 2:

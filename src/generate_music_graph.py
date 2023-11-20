@@ -4,13 +4,20 @@ from graphviz import Graph
 from hurry.filesize import size
 
 from src.animation_stuff import AnimationFrames
+from src.cache_stuff import (
+    cleanup_cache_dir,
+    get_cache_dir,
+)
 from src.graph_stuff import (
     animate_bezier_point,
     animate_ellipsis_blur,
     draw_fading_bezier_curve,
     parse_graph,
 )
-from src.midi_stuff import get_note_start_times_in_frames
+from src.midi_stuff import (
+    get_note_start_times_in_frames,
+    TRACK_NOTE_DELIMITER,
+)
 from src.theme_stuff import Theme
 from src.video_stuff import (
     add_frame_to_video,
@@ -20,6 +27,8 @@ from src.video_stuff import (
 
 
 def midi_note_to_pitch_class(midi_note):
+    _, note = midi_note.split(TRACK_NOTE_DELIMITER)
+    midi_note = int(note)
     note_names = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     return note_names[(midi_note - 1) % 12]
 
@@ -34,6 +43,7 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
         midi_file_path,
         theme.frame_rate,
         squash_tracks=theme.squash_tracks,
+        group_notes_by_track=theme.group_notes_by_track,
     )
 
     song_graph = Graph(
@@ -63,6 +73,7 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
 
     if theme.debug_show_base_image:
         base_image.show()
+        cleanup_cache_dir(get_cache_dir())
         exit()
 
     FRAMES = AnimationFrames()
@@ -98,9 +109,9 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
 
             # Animate the Node pulses
             for (
-                current_note,
-                curr_note_velocity,
-                curr_note_frame_len,
+                    current_note,
+                    curr_note_velocity,
+                    curr_note_frame_len,
             ) in curr_note_tuples:
                 frames = []
                 for i in range(curr_note_frame_len):
@@ -139,8 +150,8 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
                 pairs.append(
                     (
                         curr_note_tuples[-1][0],
-                        curr_note_tuples[-1][2],
                         curr_note_tuples[0][0],
+                        curr_note_tuples[-1][2],
                     )
                 )
 
@@ -183,10 +194,10 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
                     for a in prev_notes:
                         for b in curr_notes:
                             if (
-                                b in drawn_to
-                                or (a == b and not theme.allow_self_notes(track))
-                                or source_usage[a] >= max_usage
-                                or b not in edges[a]
+                                    b in drawn_to
+                                    or (a == b and not theme.allow_self_notes(track))
+                                    or source_usage[a] >= max_usage
+                                    or b not in edges[a]
                             ):
                                 continue
 

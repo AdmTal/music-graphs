@@ -116,6 +116,16 @@ class Theme:
         return self._get_value(path, path)
 
     @property
+    def hide_letters(self):
+        path = "hide_letters"
+        return self._get_value(path, path)
+
+    @property
+    def group_notes_by_track(self):
+        path = "group_notes_by_track"
+        return self._get_value(path, path)
+
+    @property
     def width(self):
         path = "width"
         return self._get_value(path, path)

@@ -22,6 +22,12 @@ font_size: 60
 # Font to use - change to any Font file on your system
 font: "assets/ClassyCoiffeurRegular-2Vl8.otf"
 
+# If true, letters will not be printed
+hide_letters: false
+
+# If true, each track will get its own graph
+group_notes_by_track: false
+
 # Tweak the text location, needed when you change Font, DPI, or Size.
 text_location_offsets:
   len_1:
