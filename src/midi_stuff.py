@@ -32,7 +32,7 @@ def get_note_start_times_in_frames(
 
     track_events_frames = defaultdict(lambda: defaultdict(list))
 
-    for i, instrument in enumerate(midi_data.instruments):
+    for i, instrument in enumerate(midi_data.instruments, start=1):
         for note in instrument.notes:
             # Calculate the start time of the note in seconds and convert to frames
             start_time = note.start
@@ -42,7 +42,7 @@ def get_note_start_times_in_frames(
 
             track_name = 0
             if group_notes_by_track:
-                track_name = i
+                track_name = i + 1
             note_value = get_note(track_name, note.pitch)
 
             note_tuple = (
@@ -53,6 +53,6 @@ def get_note_start_times_in_frames(
             if squash_tracks:
                 track_events_frames[f"track_2"][frame].append(note_tuple)
             else:
-                track_events_frames[f"track_{i + 2}"][frame].append(note_tuple)
+                track_events_frames[f"track_{track_name}"][frame].append(note_tuple)
 
     return track_events_frames

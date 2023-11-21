@@ -92,7 +92,7 @@ tracks:
       stroke_width: 0
       # This is fancy.  The ball is slightly blurred, and sharpens just in time to hit the note
       # Play around with this one, I'm not sure how to explain it.
-      g_blur_max: 0
+      g_blur_max: 2
 
     # "chord line" is that line that connects the nodes when multiple notes are played on a track
     chord_line:

@@ -61,10 +61,15 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
             [note_tuple[0] for note_tuple in list_of_note_tuples]
             for frame_num, list_of_note_tuples in note_tuples.items()
         ]
+        # Create Nodes
+        for note in notes:
+            n = note[0]
+            song_graph.node(str(n), label=midi_note_to_pitch_class(n))
+
+        # Create Edges
         melody_pairs = overlapping_pairs(notes)
         for a_notes, b_notes in melody_pairs:
             for a in a_notes:
-                song_graph.node(str(a), label=midi_note_to_pitch_class(a))
                 for b in b_notes:
                     song_graph.node(str(b), label=midi_note_to_pitch_class(b))
                     song_graph.edge(str(a), str(b))
