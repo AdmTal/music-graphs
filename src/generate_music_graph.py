@@ -57,6 +57,8 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
     )
 
     for track, note_tuples in track_events_frames.items():
+        if theme.skip_track(track):
+            continue
         notes = [
             [note_tuple[0] for note_tuple in list_of_note_tuples]
             for frame_num, list_of_note_tuples in note_tuples.items()
