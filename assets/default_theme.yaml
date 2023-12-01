@@ -17,6 +17,9 @@ debug:
 
 # Image that shows behind the graph in the video
 background_image: ""
+
+background_color: "white"
+
 # Size of the letters in the nodes
 font_size: 60
 # Font to use - change to any Font file on your system
@@ -49,9 +52,13 @@ graphviz_graph_attrs:
 # True if you want to see the Lines (splines)
 show_graph_lines: false
 graph_line_width: 3
+graph_line_color: "#000000"
 
 # True if you want to squash a multi-track midi into a single track
 squash_tracks: false
+
+# True if nodes should be sorted by note value
+nodes_sorted: false
 
 # "Nodes" are the notes on the graph
 node:

@@ -13,6 +13,7 @@ from src.graph_stuff import (
     animate_ellipsis_blur,
     draw_fading_bezier_curve,
     parse_graph,
+    get_node_positions,
 )
 from src.midi_stuff import (
     get_note_start_times_in_frames,
@@ -37,15 +38,8 @@ def overlapping_pairs(lst):
     return list(zip(lst, lst[1:])) + [(lst[-2], lst[-1])] if len(lst) > 1 else []
 
 
-def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont_file):
-    theme = Theme(theme_file_path)
-    track_events_frames = get_note_start_times_in_frames(
-        midi_file_path,
-        theme.frame_rate,
-        squash_tracks=theme.squash_tracks,
-        group_notes_by_track=theme.group_notes_by_track,
-    )
-
+def create_graphviz_default_sort(theme, track_events_frames):
+    """Create a Graphviz without a specified order"""
     song_graph = Graph(
         "G",
         engine=theme.graphviz_engine,
@@ -66,15 +60,127 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
         # Create Nodes
         for note in notes:
             n = note[0]
-            song_graph.node(str(n), label=midi_note_to_pitch_class(n))
+            song_graph.node(n, label=midi_note_to_pitch_class(n))
 
         # Create Edges
         melody_pairs = overlapping_pairs(notes)
         for a_notes, b_notes in melody_pairs:
             for a in a_notes:
                 for b in b_notes:
-                    song_graph.node(str(b), label=midi_note_to_pitch_class(b))
-                    song_graph.edge(str(a), str(b))
+                    song_graph.node(b, label=midi_note_to_pitch_class(b))
+                    song_graph.edge(a, b)
+
+    return song_graph
+
+
+def create_graphviz_sorted(theme, track_events_frames):
+    """
+    This function implements a hack to force Graphviz node ordering.
+    Step 1: Create a bare-bones CIRCO graph with nodes added in order
+    Step 2: Save that graph to a file, and extract its node positions
+    Step 3: Generate the final NEATO graph, using hard coded node positions
+    """
+    if theme.graphviz_engine.lower() != "circo":
+        click.echo(
+            "ERROR: Node sorting only works when graphviz engine is circo", err=True
+        )
+        cleanup_cache_dir(get_cache_dir())
+        exit(1)
+    song_graph = Graph(
+        "G",
+        engine=theme.graphviz_engine,
+        format="plain",
+        strict=True,
+        node_attr=theme.graphviz_node_attrs,
+        graph_attr=theme.graphviz_graph_attrs,
+        edge_attr=theme.graphviz_edge_attrs,
+    )
+
+    for track, note_tuples in track_events_frames.items():
+        if theme.skip_track(track):
+            continue
+        notes = [
+            [note_tuple[0] for note_tuple in list_of_note_tuples]
+            for frame_num, list_of_note_tuples in note_tuples.items()
+        ]
+
+        if theme.nodes_sorted:
+            notes = sorted(
+                notes, key=lambda x: int(x[0].split(TRACK_NOTE_DELIMITER)[1])
+            )
+
+        track_notes = {}
+        for note in notes:
+            track_notes[note[0]] = True
+
+        # Create Nodes - In order
+        prev_note = None
+        track_notes = list(track_notes.keys())
+        for n in track_notes + [track_notes[0]]:  # tack on the first to make a circle
+            song_graph.node(n, label=midi_note_to_pitch_class(n))
+            if prev_note:
+                song_graph.edge(n, prev_note)
+            prev_note = n
+        for a in track_notes:
+            for b in track_notes:
+                song_graph.edge(a, b)
+
+    node_positions = get_node_positions(song_graph)
+
+    song_graph = Graph(
+        "G",
+        engine="neato",
+        format="xdot",
+        strict=True,
+        node_attr=theme.graphviz_node_attrs,
+        graph_attr=theme.graphviz_graph_attrs,
+        edge_attr=theme.graphviz_edge_attrs,
+    )
+
+    for track, note_tuples in track_events_frames.items():
+        if theme.skip_track(track):
+            continue
+        notes = [
+            [note_tuple[0] for note_tuple in list_of_note_tuples]
+            for frame_num, list_of_note_tuples in note_tuples.items()
+        ]
+        # Create Nodes
+        for note in notes:
+            n = note[0]
+            song_graph.node(
+                n,
+                label=midi_note_to_pitch_class(n),
+                _attributes={"pos": node_positions[n]},
+            )
+
+        # Create Edges
+        melody_pairs = overlapping_pairs(notes)
+        for a_notes, b_notes in melody_pairs:
+            for a in a_notes:
+                for b in b_notes:
+                    song_graph.node(b, label=midi_note_to_pitch_class(b))
+                    song_graph.edge(a, b)
+
+    return song_graph
+
+
+def create_graphviz(theme, track_events_frames):
+    if theme.nodes_sorted:
+        return create_graphviz_sorted(theme, track_events_frames)
+
+    return create_graphviz_default_sort(theme, track_events_frames)
+
+
+def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont_file):
+    theme = Theme(theme_file_path)
+    track_events_frames = get_note_start_times_in_frames(
+        midi_file_path,
+        theme.frame_rate,
+        squash_tracks=theme.squash_tracks,
+        group_notes_by_track=theme.group_notes_by_track,
+    )
+
+    song_graph = create_graphviz(theme, track_events_frames)
 
     base_image, nodes, edges, offsets = parse_graph(song_graph, theme)
 
@@ -116,9 +222,9 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
 
             # Animate the Node pulses
             for (
-                    current_note,
-                    curr_note_velocity,
-                    curr_note_frame_len,
+                current_note,
+                curr_note_velocity,
+                curr_note_frame_len,
             ) in curr_note_tuples:
                 frames = []
                 for i in range(curr_note_frame_len):
@@ -201,10 +307,10 @@ def generate_music_graph(midi_file_path, theme_file_path, output_path, soundfont
                     for a in prev_notes:
                         for b in curr_notes:
                             if (
-                                    b in drawn_to
-                                    or (a == b and not theme.allow_self_notes(track))
-                                    or source_usage[a] >= max_usage
-                                    or b not in edges[a]
+                                b in drawn_to
+                                or (a == b and not theme.allow_self_notes(track))
+                                or source_usage[a] >= max_usage
+                                or b not in edges[a]
                             ):
                                 continue
 

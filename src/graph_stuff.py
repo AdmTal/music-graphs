@@ -60,7 +60,7 @@ def split_numbers(sequence, n):
 
 
 def array_chunk(lst, chunk_size):
-    return [lst[i: i + chunk_size] for i in range(0, len(lst), chunk_size)]
+    return [lst[i : i + chunk_size] for i in range(0, len(lst), chunk_size)]
 
 
 def parse_draw(draw_string, dpi):
@@ -74,11 +74,11 @@ def parse_draw(draw_string, dpi):
         command, rest = rest[0], rest[2:]
         if command == "c":
             num, rest = int(rest[0]), rest[3:]
-            pen_color, rest = rest[:num], rest[num + 1:]
+            pen_color, rest = rest[:num], rest[num + 1 :]
             continue
         if command == "C":
             num, rest = int(rest[0]), rest[3:]
-            fill_color, rest = rest[:num], rest[num + 1:]
+            fill_color, rest = rest[:num], rest[num + 1 :]
             continue
         if command == "P":
             num, rest = int(rest[0]), rest[2:]
@@ -125,17 +125,17 @@ def parse_ldraw(ldraw_string, dpi):
         command, rest = rest[0], rest[2:]
         if command == "F":
             first_space = rest.find(" ")
-            font_size, rest = int(rest[:first_space]), rest[first_space + 1:]
+            font_size, rest = int(rest[:first_space]), rest[first_space + 1 :]
             first_space = rest.find(" ")
             num, rest = int(rest[:first_space]), rest[first_space:]
             font, rest = (
-                rest[first_space: first_space + num],
-                rest[first_space + num + 1:],
+                rest[first_space : first_space + num],
+                rest[first_space + num + 1 :],
             )
             continue
         if command == "c":
             num, rest = int(rest[0]), rest[3:]
-            pen_color, rest = rest[:num], rest[num + 1:]
+            pen_color, rest = rest[:num], rest[num + 1 :]
             continue
         if command == "T":
             nums, text = rest.split("-")
@@ -173,18 +173,18 @@ def hex_to_rgb(hex_color):
     if not isinstance(hex_color, str):
         return hex_color
     hex_color = hex_color.lstrip("#")
-    return tuple(int(hex_color[i: i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def draw_ellipse(
-        offsets,
-        image,
-        e_points,
-        node_outline_color=None,
-        node_fill_color=None,
-        node_shadow_color=None,
-        node_shadow_size=None,
-        line_width=None,
+    offsets,
+    image,
+    e_points,
+    node_outline_color=None,
+    node_fill_color=None,
+    node_shadow_color=None,
+    node_shadow_size=None,
+    line_width=None,
 ):
     x0, y0, w, h = e_points
 
@@ -216,7 +216,7 @@ def draw_ellipse(
 
         # Draw and blur the shadow ellipse
         temp_draw.ellipse(shadow_size, fill=node_shadow_color)
-        blur_radius = int(max(increase_w, increase_h))  # Gaussian blur radius
+        blur_radius = int(max(increase_w, increase_h)) / 2  # Gaussian blur radius
         temp_image = temp_image.filter(ImageFilter.GaussianBlur(radius=blur_radius))
 
         # Merge shadow with the main image
@@ -245,7 +245,7 @@ def bezier_point(t, points):
 def draw_bezier_curve(offsets, image, points, pen_color, line_width):
     draw = ImageDraw.Draw(image)
     # Split the points into pairs
-    points = [points[i: i + 2] for i in range(0, len(points), 2)]
+    points = [points[i : i + 2] for i in range(0, len(points), 2)]
     points = [(c[0] + offsets[0], c[1] + offsets[1]) for c in points]
 
     # Split the curve into segments
@@ -283,13 +283,13 @@ def calculate_alpha(frame_number, total_frames):
 
 
 def draw_fading_bezier_curve(
-        base_image,
-        offsets,
-        theme,
-        points,
-        frame_number,
-        track,
-        animation_len,
+    base_image,
+    offsets,
+    theme,
+    points,
+    frame_number,
+    track,
+    animation_len,
 ):
     # Create a new transparent image to draw the Bézier curve
     overlay_image = Image.new("RGBA", base_image.size, (255, 255, 255, 0))
@@ -299,7 +299,7 @@ def draw_fading_bezier_curve(
     alpha = calculate_alpha(frame_number, animation_len)
 
     # Split the points into pairs and apply offsets
-    points = [points[i: i + 2] for i in range(0, len(points), 2)]
+    points = [points[i : i + 2] for i in range(0, len(points), 2)]
     points = [(c[0] + offsets[0], c[1] + offsets[1]) for c in points]
 
     # Split the curve into segments
@@ -343,13 +343,13 @@ def draw_fading_bezier_curve(
 
 
 def animate_bezier_point(
-        base_image,
-        offsets,
-        theme,
-        track,
-        points,
-        frame_number,
-        animation_length_in_frames,
+    base_image,
+    offsets,
+    theme,
+    track,
+    points,
+    frame_number,
+    animation_length_in_frames,
 ):
     overlay_image = Image.new(
         "RGBA",
@@ -361,7 +361,7 @@ def animate_bezier_point(
     x_offset, y_offset = offsets
 
     t = frame_number / animation_length_in_frames
-    point = bezier_point(t, [points[i: i + 2] for i in range(0, len(points), 2)])
+    point = bezier_point(t, [points[i : i + 2] for i in range(0, len(points), 2)])
     point_center = (x_offset + point[0], y_offset + point[1])
 
     # Draw the 3D-looking circle
@@ -394,14 +394,14 @@ def animate_bezier_point(
 
 
 def animate_ellipsis_blur(
-        base_image,
-        points,
-        frame_number,
-        offsets,
-        theme,
-        track,
-        animation_len,
-        velocity,
+    base_image,
+    points,
+    frame_number,
+    offsets,
+    theme,
+    track,
+    animation_len,
+    velocity,
 ):
     image = base_image.copy()
     draw = ImageDraw.Draw(image)
@@ -452,16 +452,16 @@ def animate_ellipsis_blur(
 
 
 def draw_centered_text(
-        offsets,
-        image,
-        text,
-        x,
-        y,
-        font_path,
-        font_size,
-        color,
-        outline_color,
-        stroke_width,
+    offsets,
+    image,
+    text,
+    x,
+    y,
+    font_path,
+    font_size,
+    color,
+    outline_color,
+    stroke_width,
 ):
     font = ImageFont.truetype(font_path, font_size)
     draw = ImageDraw.Draw(image)
@@ -487,9 +487,30 @@ def paste_center(host_image, image):
     host_image.paste(image, (x, y), image)
 
 
+def get_node_positions(graph):
+    """Draw a graph to a file, load it, then parse it's `node[pos] values, and return them"""
+    temp_filename = f"{get_cache_dir()}/graph_order"
+    graph.filename = temp_filename
+    graph.render(view=False)
+    file_contents = open(f"{temp_filename}.plain").read()
+    lines = file_contents.split("\n")
+
+    nodes = {}
+
+    for line in lines:
+        tokens = line.split(" ")
+        if tokens[0] != "node":
+            continue
+        _, node, x, y = tokens[0], tokens[1], tokens[2], tokens[3]
+        node = node.replace('"', "")
+        nodes[node] = f"{x},{y}!"
+
+    return nodes
+
+
 def parse_graph(
-        graph,
-        theme: Theme,
+    graph,
+    theme: Theme,
 ):
     temp_filename = f"{get_cache_dir()}/graph.gv"
     graph.filename = temp_filename
@@ -544,7 +565,11 @@ def parse_graph(
                 host_image.paste(bg_image, (0, 0))
             else:
                 # Create a new white image if background_image is false
-                bg_image = Image.new("RGBA", (theme.width, theme.height), "white")
+                bg_image = Image.new(
+                    "RGBA",
+                    (theme.width, theme.height),
+                    hex_to_rgb(theme.background_color),
+                )
                 host_image.paste(bg_image, (0, 0))
 
         if "_draw_" in attrs_dict:
@@ -571,7 +596,7 @@ def parse_graph(
                         offsets,
                         graph_image,
                         draw.b_points,
-                        draw.pen_color,
+                        theme.graph_line_color,
                         theme.graph_line_width,
                     )
 

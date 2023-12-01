@@ -31,9 +31,9 @@ class AttributeDict(dict):
 
 class Theme:
     def __init__(
-            self,
-            theme_file,
-            defaults_file=DEFAULT_THEME_FILE,
+        self,
+        theme_file,
+        defaults_file=DEFAULT_THEME_FILE,
     ):
         with open(theme_file, "r") as stream:
             self._theme = AttributeDict(**yaml.safe_load(stream))
@@ -106,8 +106,18 @@ class Theme:
         return self._get_value(path, path)
 
     @property
+    def nodes_sorted(self):
+        path = "nodes_sorted"
+        return self._get_value(path, path)
+
+    @property
     def background_image(self):
         path = "background_image"
+        return self._get_value(path, path)
+
+    @property
+    def background_color(self):
+        path = "background_color"
         return self._get_value(path, path)
 
     @property
@@ -143,6 +153,11 @@ class Theme:
     @property
     def graph_line_width(self):
         path = "graph_line_width"
+        return self._get_value(path, path)
+
+    @property
+    def graph_line_color(self):
+        path = "graph_line_color"
         return self._get_value(path, path)
 
     @property
@@ -220,11 +235,11 @@ class Theme:
 
     def note_increase_size(self, track):
         return (
-                self._get_value(
-                    f"tracks.{track}.note.increase_size",
-                    default_path=f"tracks.default.note.increase_size",
-                )
-                / 100
+            self._get_value(
+                f"tracks.{track}.note.increase_size",
+                default_path=f"tracks.default.note.increase_size",
+            )
+            / 100
         )
 
     def chord_line_width(self, track):
