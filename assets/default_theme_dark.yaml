@@ -52,7 +52,7 @@ graphviz_graph_attrs:
 # True if you want to see the Lines (splines)
 show_graph_lines: false
 graph_line_width: 3
-graph_line_color: "#000000"
+graph_line_color: "#808080"
 
 # True if you want to squash a multi-track midi into a single track
 squash_tracks: false
