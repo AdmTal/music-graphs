@@ -380,7 +380,8 @@ def animate_bezier_point(
     blur_max = theme.ball_g_blur_max(track)
     if blur_max:
         blur_radius = min(
-            animation_length_in_frames - frame_number, theme.ball_g_blur_max(track)
+            animation_length_in_frames - frame_number,
+            theme.ball_g_blur_max(track) / (frame_number + 1),
         )
         overlay_image = overlay_image.filter(
             ImageFilter.GaussianBlur(radius=blur_radius)

@@ -88,5 +88,21 @@ For example - Look for "SGM-V2.01.sf2" on https://www.doomworld.com/forum/post/1
 
 ---
 
+## Note Ordering:
+
+In the theme file:
+
+```yaml
+# For Chromatic
+nodes_sorted:  true
+```
+
+```yaml
+# For Circle Of Fifths
+nodes_sorted:  [6, 1, 8, 3, 10, 5, 12, 7, 2, 9, 4, 11]
+```
+
+---
+
 🙏Thanks for stopping by!
 

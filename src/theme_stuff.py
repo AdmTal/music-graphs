@@ -1,7 +1,8 @@
 import operator
 import yaml
 
-DEFAULT_THEME_FILE = "assets/default_theme.yaml"
+LIGHT_THEME_FILE = "assets/default_theme_light.yaml"
+DARK_THEME_FILE = "assets/default_theme_dark.yaml"
 
 
 class AttributeDict(dict):
@@ -33,7 +34,7 @@ class Theme:
     def __init__(
         self,
         theme_file,
-        defaults_file=DEFAULT_THEME_FILE,
+        defaults_file,
     ):
         with open(theme_file, "r") as stream:
             self._theme = AttributeDict(**yaml.safe_load(stream))

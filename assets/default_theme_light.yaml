@@ -18,7 +18,7 @@ debug:
 # Image that shows behind the graph in the video
 background_image: ""
 
-background_color: "white"
+background_color: "#FFFFFF"
 
 # Size of the letters in the nodes
 font_size: 60
@@ -57,15 +57,18 @@ graph_line_color: "#000000"
 # True if you want to squash a multi-track midi into a single track
 squash_tracks: false
 
-# True if nodes should be sorted by note value
-nodes_sorted: false
+# False = Default Graphviz order
+# True = Chromatic
+# List = custom order where C=1, C#=2, etc.
+# Example - Circle of fifths -> [3, 10, 5, 12, 7, 2, 9, 4, 11, 6, 1, 8]
+nodes_sorted: true
 
 # "Nodes" are the notes on the graph
 node:
   fill_color: "#000000"
   outline_color: "#000000"
   shadow_color: "#FFFFFF"
-  shadow_size: 50
+  shadow_size: 100
   text:
     color: "#FFFFFF"
     stroke_color: ""
@@ -89,17 +92,17 @@ tracks:
       stroke_color: "#FFFFFF"
       stroke_width: 1
       # this would make the node 0% bigger than it should be
-      increase_size: 0
+      increase_size: 20
 
     # "ball" is that thing that flies between the notes before they play
     ball:
-      radius: 50
+      radius: 100
       color: "#000000"
       stroke_color: "#000000"
       stroke_width: 0
       # This is fancy.  The ball is slightly blurred, and sharpens just in time to hit the note
       # Play around with this one, I'm not sure how to explain it.
-      g_blur_max: 2
+      g_blur_max: 60
 
     # "chord line" is that line that connects the nodes when multiple notes are played on a track
     chord_line:
