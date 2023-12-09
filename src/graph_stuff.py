@@ -1,4 +1,5 @@
 import re
+import math
 from collections import defaultdict, namedtuple
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -242,20 +243,39 @@ def bezier_point(t, points):
     return points[0]
 
 
-def draw_bezier_curve(offsets, image, points, pen_color, line_width):
-    draw = ImageDraw.Draw(image)
-    # Split the points into pairs
+def draw_bezier_curve(offsets, image, points, pen_color, line_width, blur_radius):
+    # Create a transparent image to draw the curve
+    curve_image = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(curve_image)
+
+    # Adjust points with offsets
     points = [points[i : i + 2] for i in range(0, len(points), 2)]
     points = [(c[0] + offsets[0], c[1] + offsets[1]) for c in points]
 
-    # Split the curve into segments
-    segments = 100
-    curve = [bezier_point(t / segments, points) for t in range(segments + 1)]
+    # Define the bezier curve function
+    def bezier_point(t, points):
+        n = len(points) - 1
+        return tuple(
+            sum(
+                c * (t**i) * ((1 - t) ** (n - i)) * math.comb(n, i)
+                for i, c in enumerate(coords)
+            )
+            for coords in zip(*points)
+        )
 
-    # Draw the segments
+    # Split the curve into segments and draw
+    segments = 500
+    curve = [bezier_point(t / segments, points) for t in range(segments + 1)]
     for i in range(segments):
-        pen_color = hex_to_rgb(pen_color)
         draw.line((curve[i], curve[i + 1]), fill=pen_color, width=line_width)
+
+    # Apply a blur filter to the curve image
+    curve_image = curve_image.filter(ImageFilter.GaussianBlur(blur_radius))
+
+    # Composite the blurred curve onto the original image
+    image.paste(curve_image, (0, 0), curve_image)
+
+    return image
 
 
 def hex_to_rgba(color, alpha):
@@ -523,6 +543,8 @@ def parse_graph(
     nodes = {}
     edges = defaultdict(dict)
 
+    nodes_to_draw = []
+
     for line in lines[1:-1]:
         line_id, attributes = line.split("[")
         line_id = line_id.strip().replace('"', "")
@@ -576,15 +598,15 @@ def parse_graph(
         if "_draw_" in attrs_dict:
             draw = parse_draw(attrs_dict["_draw_"], theme.dpi)
             if draw.e_points:
-                draw_ellipse(
-                    offsets,
-                    graph_image,
-                    draw.e_points,
-                    theme.node_outline_color,
-                    theme.node_fill_color,
-                    theme.node_shadow_color,
-                    theme.node_shadow_size,
-                    theme.graph_line_width,
+                nodes_to_draw.append(
+                    [
+                        draw.e_points,
+                        theme.node_outline_color,
+                        theme.node_fill_color,
+                        theme.node_shadow_color,
+                        theme.node_shadow_size,
+                        theme.graph_line_width,
+                    ]
                 )
                 nodes[line_id] = draw
 
@@ -599,6 +621,7 @@ def parse_graph(
                         draw.b_points,
                         theme.graph_line_color,
                         theme.graph_line_width,
+                        theme.graph_line_blur,
                     )
 
         if "_ldraw_" in attrs_dict and not theme.hide_letters:
@@ -623,6 +646,9 @@ def parse_graph(
                 theme.node_text_outline_color,
                 theme.node_text_stroke_width,
             )
+
+    for args in nodes_to_draw:
+        draw_ellipse(offsets, graph_image, *args)
 
     paste_center(host_image, graph_image)
 

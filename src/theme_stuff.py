@@ -50,6 +50,9 @@ class Theme:
         if value is not None:
             return value
         if default_path:
+            theme_default = self._theme.get_path(default_path)
+            if theme_default:
+                return theme_default
             return self._defaults.get_path(default_path)
 
     @property
@@ -154,6 +157,11 @@ class Theme:
     @property
     def graph_line_width(self):
         path = "graph_line_width"
+        return self._get_value(path, path)
+
+    @property
+    def graph_line_blur(self):
+        path = "graph_line_blur"
         return self._get_value(path, path)
 
     @property

@@ -53,6 +53,7 @@ graphviz_graph_attrs:
 show_graph_lines: false
 graph_line_width: 3
 graph_line_color: "#808080"
+graph_line_blur: 0
 
 # True if you want to squash a multi-track midi into a single track
 squash_tracks: false
@@ -84,13 +85,13 @@ tracks:
     skip: false
 
     # This controls if "balls" can flow from a note to itself
-    allow_self_notes: false
+    allow_self_notes: true
 
     # "note" is the pulse that shows on top of a Node when a note plays
     note:
       color: "#5c5c5c"
       stroke_color: "#000000"
-      stroke_width: 1
+      stroke_width: 0
       # this would make the node 0% bigger than it should be
       increase_size: 20
 
