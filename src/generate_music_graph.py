@@ -192,6 +192,7 @@ def generate_music_graph(
     theme_file_path,
     output_path,
     soundfont_file,
+    just_get_frames=False,
 ):
     theme = Theme(theme_file_path, default_theme_file_path)
     track_events_frames = get_note_start_times_in_frames(
@@ -361,6 +362,9 @@ def generate_music_graph(
     if theme.debug_max_frames:
         num_frames = theme.debug_max_frames
 
+    if just_get_frames:
+        just_the_frames = []
+
     writer_context = initialize_video_writer(theme.frame_rate)
     frames_written = 0
     click.echo("\nDrawing frames, writing videos...")
@@ -388,7 +392,12 @@ def generate_music_graph(
                     )
 
             add_frame_to_video(writer, frame_image)
+            if just_get_frames:
+                just_the_frames.append(frame_image)
             frames_written += 1
+
+    if just_get_frames:
+        return just_the_frames
 
     finalize_video_with_music(
         writer,
