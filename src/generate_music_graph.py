@@ -35,7 +35,7 @@ def midi_note_to_pitch_class(midi_note):
 
 
 def overlapping_pairs(lst):
-    return list(zip(lst, lst[1:])) + [(lst[-2], lst[-1])] if len(lst) > 1 else []
+    return list(zip(lst, lst[1:])) + [(lst[-1], lst[0])] if len(lst) > 1 else []
 
 
 def create_graphviz_default_sort(theme, track_events_frames):
@@ -267,51 +267,47 @@ def generate_music_graph(
 
             # Animate the Chord Lines
             if len(curr_note_tuples) > 1:
-                pairs = []
-                for idx in range(len(curr_note_tuples) - 1):
-                    a = curr_note_tuples[idx][0]
-                    frame_len = curr_note_tuples[idx][2]
-                    b = curr_note_tuples[idx + 1][0]
-                    pairs.append(
-                        (
-                            a,
-                            b,
-                            frame_len,
+                # Split notes in chord up by the frame length, cause multiple chords might be playing
+                notes_in_cords = {}
+                for note, velocity, frame_len in curr_note_tuples:
+                    if frame_len not in notes_in_cords:
+                        notes_in_cords[frame_len] = []
+                    notes_in_cords[frame_len].append(note)
+
+                # For each individual chord, draw the lines
+                for frame_len, all_notes in notes_in_cords.items():
+                    # The chord lines shoudl not overlap, so sort them according to sort order
+                    if theme.nodes_sorted:
+                        if isinstance(theme.nodes_sorted, bool):
+                            all_notes = sorted(
+                                all_notes,
+                                key=lambda i: int(i.split(TRACK_NOTE_DELIMITER)[1]),
+                            )
+                        else:
+                            all_notes = filter_and_order_custom(
+                                theme.nodes_sorted, all_notes
+                            )
+                    # Use `overlapping_pairs` to make the notes connect as a circle
+                    pairs = overlapping_pairs(all_notes)
+                    for a, b in pairs:
+                        frames = []
+                        for i in range(frame_len):
+                            if b not in edges[a]:
+                                continue
+                            frames.append(
+                                [
+                                    draw_fading_bezier_curve,
+                                    {
+                                        "track": track,
+                                        "points": edges[a][b].b_points,
+                                        "frame_number": i,
+                                        "animation_len": frame_len,
+                                    },
+                                ]
+                            )
+                        FRAMES.add_frames_to_layer(
+                            f"l1-{track}-{a}-{b}-line", curr_frame, frames
                         )
-                    )
-
-                pairs = sorted(pairs, key=lambda x: x[0])
-                pairs.append(
-                    (
-                        curr_note_tuples[-1][0],
-                        curr_note_tuples[0][0],
-                        curr_note_tuples[-1][2],
-                    )
-                )
-
-                for a, b, frame_len in pairs:
-                    frames = []
-                    for i in range(frame_len):
-                        if a == b:
-                            continue
-
-                        if b not in edges[a]:
-                            continue
-
-                        frames.append(
-                            [
-                                draw_fading_bezier_curve,
-                                {
-                                    "track": track,
-                                    "points": edges[a][b].b_points,
-                                    "frame_number": i,
-                                    "animation_len": frame_len,
-                                },
-                            ]
-                        )
-                    FRAMES.add_frames_to_layer(
-                        f"l1-{track}-{a}-{b}-line", curr_frame, frames
-                    )
 
             curr_notes = [curr_note_tuple[0] for curr_note_tuple in curr_note_tuples]
 
