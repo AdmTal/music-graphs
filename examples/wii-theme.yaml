@@ -27,7 +27,7 @@ node:
     stroke_width: null
 
 tracks:
-  track_2:
+  track_0:
     note:
       color: "#009ac7"
       increase_size: 50
