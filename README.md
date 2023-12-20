@@ -49,6 +49,11 @@ Ready to roll? Start with this example:
 python music_graphs.py --midi examples/wii-music.mid
 ```
 
+Add `--dark` to use a dark theme.
+```commandline
+python music_graphs.py --midi examples/wii-music.mid --dark
+```
+
 This command churns out a video. But hold up, it's kinda vanilla, right? Let's jazz it up!
 
 Run it with a Theme file:
@@ -61,7 +66,7 @@ python music_graphs.py \
 
 Boom! Looks way cooler, doesn't it?
 
-For all the nitty-gritty on customizing your video, peek at [default_theme.yaml](assets%2Fdefault_theme.yaml). There's a
+For all the nitty-gritty on customizing your video, peek at [default_theme_dark.yaml](assets/default_theme_dark.yaml). There's a
 bunch you can tweak!
 
 See the help command for full options:
@@ -72,9 +77,10 @@ Usage: music_graphs.py [OPTIONS]
 Options:
   --midi PATH             Path to a MIDI file.  [required]
   --theme PATH            Path to a YAML theme file.
+  --dark                  True if dark theme should be the used.
   --output_filename PATH  Output filename (path).
   --soundfont_file PATH   Path to a Soundfont file
-  --help                  Show this message and exit.
+  --help                  Show this message and exit
 ```
 
 ## What's a "Sound Font" file?

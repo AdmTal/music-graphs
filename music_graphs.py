@@ -49,6 +49,9 @@ def main(midi, theme, output_filename, soundfont_file, dark):
     if dark:
         default_theme_file = DARK_THEME_FILE
 
+    if not theme:
+        theme = default_theme_file
+
     if not output_filename:
         output_filename = get_filename_without_extension(midi)
 
