@@ -1,7 +1,9 @@
+import os
 import click
 import psutil
 from graphviz import Graph
 from hurry.filesize import size
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.animation_stuff import AnimationFrames
 from src.cache_stuff import (
@@ -186,12 +188,27 @@ def create_graphviz(theme, track_events_frames):
     return create_graphviz_default_sort(theme, track_events_frames)
 
 
+def process_frame(current_frame, base_image, theme, offsets, FRAMES):
+    frame_result = base_image.copy()
+    for layer, layer_images in sorted(FRAMES.items()):
+        frame = layer_images[current_frame]
+        if frame:
+            draw_function, args = frame
+            frame_result = draw_function(
+                base_image=frame_result,  # Use frame_result instead of base_image
+                theme=theme,
+                offsets=offsets,
+                **args,
+            )
+    return frame_result
+
+
 def generate_music_graph(
-    midi_file_path,
-    default_theme_file_path,
-    theme_file_path,
-    output_path,
-    soundfont_file,
+        midi_file_path,
+        default_theme_file_path,
+        theme_file_path,
+        output_path,
+        soundfont_file,
 ):
     theme = Theme(theme_file_path, default_theme_file_path)
     track_events_frames = get_note_start_times_in_frames(
@@ -243,9 +260,9 @@ def generate_music_graph(
 
             # Animate the Node pulses
             for (
-                current_note,
-                curr_note_velocity,
-                curr_note_frame_len,
+                    current_note,
+                    curr_note_velocity,
+                    curr_note_frame_len,
             ) in curr_note_tuples:
                 frames = []
                 for i in range(curr_note_frame_len):
@@ -324,10 +341,10 @@ def generate_music_graph(
                     for a in prev_notes:
                         for b in curr_notes:
                             if (
-                                b in drawn_to
-                                or (a == b and not theme.allow_self_notes(track))
-                                or source_usage[a] >= max_usage
-                                or b not in edges[a]
+                                    b in drawn_to
+                                    or (a == b and not theme.allow_self_notes(track))
+                                    or source_usage[a] >= max_usage
+                                    or b not in edges[a]
                             ):
                                 continue
 
@@ -360,31 +377,39 @@ def generate_music_graph(
     writer_context = initialize_video_writer(theme.frame_rate)
     frames_written = 0
     click.echo("\nDrawing frames, writing videos...")
+    NUM_WORKERS = os.cpu_count()
     with writer_context as (writer, video_file_path):
-        for current_frame in range(num_frames):
-            usage = size(psutil.Process().memory_info().rss)
-            click.echo(
-                f"\rProcessed {current_frame} of {num_frames}... (memory usage={usage})",
-                nl=False,
-            )
-
-            # Create a new image for the base
-            frame_image = base_image.copy()
-
-            # Flatten the layers for the current frame
-            for layer, layer_images in sorted(FRAMES.items()):
-                frame = layer_images[current_frame]
-                if frame:
-                    draw_function, args = frame
-                    frame_image = draw_function(
-                        base_image=frame_image,
+        while frames_written < num_frames:
+            with ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
+                future_to_frame = {
+                    executor.submit(
+                        process_frame,
+                        current_frame=i,
+                        base_image=base_image.copy(),
                         theme=theme,
                         offsets=offsets,
-                        **args,
+                        FRAMES=FRAMES,
+                    ): i
+                    for i in range(
+                        frames_written, min(frames_written + NUM_WORKERS, num_frames)
                     )
+                }
 
-            add_frame_to_video(writer, frame_image)
-            frames_written += 1
+                results = []
+                for future in as_completed(future_to_frame):
+                    frame_index = future_to_frame[future]
+                    frame_image = future.result()
+                    results.append((frame_index, frame_image))
+
+                for frame_index, frame_image in sorted(results, key=lambda x: x[0]):
+                    add_frame_to_video(writer, frame_image)
+                    frames_written += 1
+
+                usage = size(psutil.Process().memory_info().rss)
+                click.echo(
+                    f"\rProcessed {frames_written} of {num_frames}... (memory usage={usage})",
+                    nl=False,
+                )
 
     finalize_video_with_music(
         writer,
