@@ -88,6 +88,12 @@ class Theme:
             default_path=f"tracks.default.skip",
         )
 
+    def pulses_only(self, track):
+        return self._get_value(
+            f"tracks.{track}.pulses_only",
+            default_path=f"tracks.default.pulses_only",
+        )
+
     def allow_self_notes(self, track):
         return self._get_value(
             f"tracks.{track}.allow_self_notes",

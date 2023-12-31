@@ -204,11 +204,11 @@ def process_frame(current_frame, base_image, theme, offsets, FRAMES):
 
 
 def generate_music_graph(
-        midi_file_path,
-        default_theme_file_path,
-        theme_file_path,
-        output_path,
-        soundfont_file,
+    midi_file_path,
+    default_theme_file_path,
+    theme_file_path,
+    output_path,
+    soundfont_file,
 ):
     theme = Theme(theme_file_path, default_theme_file_path)
     track_events_frames = get_note_start_times_in_frames(
@@ -260,9 +260,9 @@ def generate_music_graph(
 
             # Animate the Node pulses
             for (
-                    current_note,
-                    curr_note_velocity,
-                    curr_note_frame_len,
+                current_note,
+                curr_note_velocity,
+                curr_note_frame_len,
             ) in curr_note_tuples:
                 frames = []
                 for i in range(curr_note_frame_len):
@@ -281,6 +281,9 @@ def generate_music_graph(
                 FRAMES.add_frames_to_layer(
                     f"l2-{track}-{current_note}", curr_frame, frames
                 )
+
+            if theme.pulses_only:
+                continue
 
             # Animate the Chord Lines
             if len(curr_note_tuples) > 1:
@@ -341,10 +344,10 @@ def generate_music_graph(
                     for a in prev_notes:
                         for b in curr_notes:
                             if (
-                                    b in drawn_to
-                                    or (a == b and not theme.allow_self_notes(track))
-                                    or source_usage[a] >= max_usage
-                                    or b not in edges[a]
+                                b in drawn_to
+                                or (a == b and not theme.allow_self_notes(track))
+                                or source_usage[a] >= max_usage
+                                or b not in edges[a]
                             ):
                                 continue
 

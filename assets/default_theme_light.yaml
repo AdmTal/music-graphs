@@ -84,6 +84,9 @@ tracks:
     # I typically do this for percussion tracks, or tracks that are super similar to others.
     skip: false
 
+    # True to only do pulses - good for Drum tracks
+    pulses_only: false
+
     # This controls if "balls" can flow from a note to itself
     allow_self_notes: true
 
