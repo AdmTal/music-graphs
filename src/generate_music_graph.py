@@ -383,38 +383,42 @@ def generate_music_graph(
     frames_written = 0
     click.echo("\nDrawing frames, writing videos...")
     NUM_WORKERS = os.cpu_count()
-    with writer_context as (writer, video_file_path):
-        while frames_written < num_frames:
-            with ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
-                future_to_frame = {
-                    executor.submit(
-                        process_frame,
-                        current_frame=i,
-                        base_image=base_image.copy(),
-                        theme=theme,
-                        offsets=offsets,
-                        FRAMES=FRAMES,
-                    ): i
-                    for i in range(
-                        frames_written, min(frames_written + NUM_WORKERS, num_frames)
+    try:
+        with writer_context as (writer, video_file_path):
+            while frames_written < num_frames:
+                with ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
+                    future_to_frame = {
+                        executor.submit(
+                            process_frame,
+                            current_frame=i,
+                            base_image=base_image.copy(),
+                            theme=theme,
+                            offsets=offsets,
+                            FRAMES=FRAMES,
+                        ): i
+                        for i in range(
+                            frames_written, min(frames_written + NUM_WORKERS, num_frames)
+                        )
+                    }
+
+                    results = []
+                    for future in as_completed(future_to_frame):
+                        frame_index = future_to_frame[future]
+                        frame_image = future.result()
+                        results.append((frame_index, frame_image))
+
+                    for frame_index, frame_image in sorted(results, key=lambda x: x[0]):
+                        add_frame_to_video(writer, frame_image)
+                        frames_written += 1
+
+                    usage = size(psutil.Process().memory_info().rss)
+                    click.echo(
+                        f"\rProcessed {frames_written} of {num_frames}... (memory usage={usage})",
+                        nl=False,
                     )
-                }
-
-                results = []
-                for future in as_completed(future_to_frame):
-                    frame_index = future_to_frame[future]
-                    frame_image = future.result()
-                    results.append((frame_index, frame_image))
-
-                for frame_index, frame_image in sorted(results, key=lambda x: x[0]):
-                    add_frame_to_video(writer, frame_image)
-                    frames_written += 1
-
-                usage = size(psutil.Process().memory_info().rss)
-                click.echo(
-                    f"\rProcessed {frames_written} of {num_frames}... (memory usage={usage})",
-                    nl=False,
-                )
+    except KeyboardInterrupt:
+        click.echo(f"\nOk, let's just make the video now!")
+        pass
 
     finalize_video_with_music(
         writer,
