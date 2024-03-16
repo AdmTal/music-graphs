@@ -90,6 +90,9 @@ tracks:
     # This controls if "balls" can flow from a note to itself
     allow_self_notes: true
 
+    # This controls if "lines" can flow from a note to itself
+    allow_self_lines: true
+
     # "note" is the pulse that shows on top of a Node when a note plays
     note:
       color: "#FFFFFF"

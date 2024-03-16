@@ -282,7 +282,7 @@ def generate_music_graph(
                     f"l2-{track}-{current_note}", curr_frame, frames
                 )
 
-            if theme.pulses_only:
+            if theme.pulses_only(track):
                 continue
 
             # Animate the Chord Lines
@@ -296,7 +296,7 @@ def generate_music_graph(
 
                 # For each individual chord, draw the lines
                 for frame_len, all_notes in notes_in_cords.items():
-                    # The chord lines shoudl not overlap, so sort them according to sort order
+                    # The chord lines should not overlap, so sort them according to sort order
                     if theme.nodes_sorted:
                         if isinstance(theme.nodes_sorted, bool):
                             all_notes = sorted(
@@ -313,6 +313,8 @@ def generate_music_graph(
                         frames = []
                         for i in range(frame_len):
                             if b not in edges[a]:
+                                continue
+                            if a == b and not theme.allow_self_notes(track):
                                 continue
                             frames.append(
                                 [

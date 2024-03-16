@@ -97,7 +97,13 @@ class Theme:
     def allow_self_notes(self, track):
         return self._get_value(
             f"tracks.{track}.allow_self_notes",
-            default_path=f"tracks.default.skip",
+            default_path=f"tracks.default.allow_self_notes",
+        )
+
+    def allow_self_lines(self, track):
+        return self._get_value(
+            f"tracks.{track}.allow_self_lines",
+            default_path=f"tracks.default.allow_self_lines",
         )
 
     @property

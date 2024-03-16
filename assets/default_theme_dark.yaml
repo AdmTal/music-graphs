@@ -87,6 +87,9 @@ tracks:
     # This controls if "balls" can flow from a note to itself
     allow_self_notes: true
 
+    # This controls if "lines" can flow from a note to itself
+    allow_self_lines: true
+
     # True to only do pulses - good for Drum tracks
     pulses_only: false
 
