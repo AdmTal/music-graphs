@@ -1,6 +1,11 @@
 import pretty_midi
 from midi2audio import FluidSynth
 from collections import defaultdict
+import click
+import hashlib
+from src.cache_stuff import get_music_cache_dir
+import pickle
+import os
 
 # https://schristiancollins.com/generaluser.php
 SOUND_FONT_FILE = "assets/GeneralUser GS 1.471/GeneralUser GS v1.471.sf2"
@@ -21,12 +26,34 @@ def get_note(track, number):
     return f"{track}{TRACK_NOTE_DELIMITER}{(number % 12) + 1}"
 
 
+def _get_pickle_filename(fps, squash_tracks, group_notes_by_track):
+    params_str = f"{fps}_{squash_tracks}_{group_notes_by_track}"
+    params_hash = hashlib.md5(params_str.encode()).hexdigest()
+    return f"note_frames_{params_hash}.pkl"
+
+
+def defaultdict_to_dict(d):
+    if isinstance(d, defaultdict):
+        d = {k: defaultdict_to_dict(v) for k, v in d.items()}
+    return d
+
+
 def get_note_start_times_in_frames(
-    midi_file_path,
-    fps,
-    squash_tracks=False,
-    group_notes_by_track=False,
+        midi_file_path,
+        fps,
+        squash_tracks=False,
+        group_notes_by_track=False,
 ):
+    cache_dir = get_music_cache_dir(midi_file_path)
+    pickle_filename = _get_pickle_filename(fps, squash_tracks, group_notes_by_track)
+    pickle_path = os.path.join(cache_dir, pickle_filename)
+    if os.path.exists(pickle_path):
+        click.echo("Loading cached note frames...")
+        with open(pickle_path, 'rb') as f:
+            click.echo("Done...")
+            return pickle.load(f)
+
+    click.echo("Processing MIDI notes...")
     # Load the MIDI file
     midi_data = pretty_midi.PrettyMIDI(midi_file_path)
 
@@ -55,4 +82,8 @@ def get_note_start_times_in_frames(
             else:
                 track_events_frames[f"track_{track_name}"][frame].append(note_tuple)
 
-    return track_events_frames
+    results = defaultdict_to_dict(track_events_frames)
+    with open(pickle_path, 'wb') as f:
+        pickle.dump(results, f)
+
+    return results

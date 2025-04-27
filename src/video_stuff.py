@@ -9,7 +9,7 @@ from moviepy.editor import VideoFileClip, AudioFileClip
 from pydub import AudioSegment
 
 from src.midi_stuff import convert_midi_to_wav
-from src.cache_stuff import get_cache_dir, cleanup_cache_dir
+from src.cache_stuff import get_cache_dir, cleanup_cache_dir, get_music_cache_dir
 
 
 @contextmanager
@@ -38,14 +38,16 @@ def finalize_video_with_music(
     writer.close()  # Ensure the writer is closed
 
     # Audio processing
-    temp_music_file = os.path.join(get_cache_dir(), "temp_music.wav")
-    open(temp_music_file, "ab").close()
+    temp_music_file = os.path.join(get_music_cache_dir(midi_file_path), "temp_music.wav")
     click.echo("Converting midi to wave...")
-    convert_midi_to_wav(
-        midi_file_path,
-        temp_music_file,
-        soundfont_file,
-    )
+
+    if not os.path.exists(temp_music_file):
+        open(temp_music_file, "ab").close()
+        convert_midi_to_wav(
+            midi_file_path,
+            temp_music_file,
+            soundfont_file,
+        )
     audio_clip = AudioSegment.from_file(temp_music_file)
 
     audio_duration = int(
@@ -53,7 +55,7 @@ def finalize_video_with_music(
     )  # Duration in milliseconds
     audio_clip = audio_clip[:audio_duration]  # Truncate the audio
 
-    temp_audio = f"{get_cache_dir()}/music.wav"
+    temp_audio = f"{get_music_cache_dir(midi_file_path)}/music.wav"
     audio_clip.export(temp_audio, format="wav")
 
     final_video = VideoFileClip(video_file_path)

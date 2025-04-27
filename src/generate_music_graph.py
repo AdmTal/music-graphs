@@ -218,6 +218,7 @@ def generate_music_graph(
         group_notes_by_track=theme.group_notes_by_track,
     )
 
+    click.echo("Creating Graph...")
     song_graph = create_graphviz(theme, track_events_frames)
 
     base_image, nodes, edges, offsets = parse_graph(song_graph, theme)
